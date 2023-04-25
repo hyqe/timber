@@ -34,11 +34,8 @@ jack := timber.NewJack(
 	// set log levels
 	timber.WithLevel(timber.DEBUG),
 
-	// set custom formatter
-	timber.WithFormatter(formatter),
-
-	// set custom output
-	timber.WithWriter(&output),
+	// set custom printer
+	timber.SetPrinter(&output, formatter),
 )
 
 jack.Debug("this will debug")
