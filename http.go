@@ -10,6 +10,7 @@ func NewMiddleware(j Jack) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			rw := newResponseWriter(w)
+
 			next.ServeHTTP(rw, r)
 
 			l := NewHttpLog(r, rw.status)
@@ -40,6 +41,7 @@ type responseWriter struct {
 
 func newResponseWriter(w http.ResponseWriter) *responseWriter {
 	return &responseWriter{
+		status:         http.StatusOK,
 		ResponseWriter: w,
 	}
 }
