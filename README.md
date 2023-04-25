@@ -7,6 +7,8 @@ A flexible logging package.
 Using the default logger.
 
 ```Go
+import "github.com/hyqe/timber"
+
 timber.Debug("Timber!!!")
 // Output:
 // DEBUG: Timber!!!
@@ -15,10 +17,17 @@ timber.Debug("Timber!!!")
 Creating a custom logging instance.
 
 ```Go
+import (
+	"bytes"
+	"fmt"
+
+	"github.com/hyqe/timber"
+)
+
 var output bytes.Buffer
 
 // full control with custom formatters
-formatter := func(l timber.Log) string {
+formatter := func(l *timber.Log) string {
 	switch l.Level {
 	case timber.DEBUG:
 		return fmt.Sprintf("🚧: %v", l.Message)
