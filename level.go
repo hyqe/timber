@@ -2,8 +2,11 @@ package timber
 
 import "strings"
 
-// Level indicates by convention, the type of log being generated
+// Level indicates by convention the type of log being generated
 // and how it would be handled.
+//
+// log levels range from SILENT to DEBUG, where each level will
+// also permit the previous log levels to be written.
 type Level int
 
 const (
@@ -11,7 +14,7 @@ const (
 	SILENT Level = iota
 
 	// ALERT is used to log system level alerts. Alerts
-	// are genetally not generated directly by user level
+	// are generally not generated directly by user level
 	// events or requests.
 	//
 	// examples:
@@ -27,10 +30,10 @@ const (
 	// examples:
 	// - 400, 500 http status responses
 	// - file read misses
-	// - resourses not found
+	// - unexpected state
 	ERROR
 
-	// DUBUG logs all the things.
+	// DEBUG logs all the things.
 	DEBUG
 )
 

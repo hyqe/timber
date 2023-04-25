@@ -15,26 +15,31 @@ type Jack interface {
 
 // NewJack creates a Jack that uses fmt.Fprint as its encoder.
 func NewJack(opts ...option) Jack {
-	j := defaultJack()
-	for _, opt := range opts {
-		opt(j)
-	}
-	return j
+	return newJack().apply(opts...)
 }
 
 type jack struct {
 	sync.Mutex
-	io.Writer
+	Out io.Writer
 	Level
 	Format Formatter
 }
 
-func defaultJack() *jack {
+func newJack() *jack {
 	return &jack{
 		Level:  DEBUG,
-		Writer: os.Stdout,
+		Out:    os.Stdout,
 		Format: TEMPLATE(STATUS),
 	}
+}
+
+func (j *jack) apply(opts ...option) *jack {
+	j.Lock()
+	defer j.Unlock()
+	for _, opt := range opts {
+		opt(j)
+	}
+	return j
 }
 
 func (j *jack) log(lvl Level, v any) {
@@ -43,8 +48,7 @@ func (j *jack) log(lvl Level, v any) {
 	}
 	j.Lock()
 	defer j.Unlock()
-	io.Copy(j, j.Format(newLog(lvl, v)))
-	fmt.Fprint(j, "\n")
+	fmt.Fprintln(j.Out, j.Format(newLog(lvl, v)))
 }
 
 func (j *jack) Debug(v any) {
@@ -69,7 +73,7 @@ func WithLevel(lvl Level) option {
 
 func WithWriter(w io.Writer) option {
 	return func(j *jack) {
-		j.Writer = w
+		j.Out = w
 	}
 }
 
