@@ -1,6 +1,9 @@
 package timber
 
-import "io"
+import (
+	"io"
+	"os"
+)
 
 type Jack interface {
 	Debug(v any)
@@ -8,69 +11,65 @@ type Jack interface {
 	Alert(v any)
 }
 
-func NewJack(opts ...Option) Jack {
-	var cfg Config
+// NewJack creates a Jack that uses fmt.Fprint as its encoder.
+func NewJack(opts ...option) Jack {
+	j := defaultJack()
 	for _, opt := range opts {
-		opt(&cfg)
+		opt(j)
 	}
-	return &fprintJack{
-		Picker: NewPicker(cfg.lvl, cfg.out),
-	}
+	return j
 }
 
-func NewJsonJack(opts ...Option) Jack {
-	var cfg Config
-	for _, opt := range opts {
-		opt(&cfg)
-	}
-	return &jsonJack{
-		Picker: NewPicker(cfg.lvl, cfg.out),
-	}
+type jack struct {
+	io.Writer
+	Level
+	Format Formatter
 }
 
-type Option func(*Config)
-
-type Config struct {
-	lvl Level
-	out io.Writer
-}
-
-func WithLevel(lvl Level) Option {
-	return func(c *Config) {
-		c.lvl = lvl
+func defaultJack() *jack {
+	return &jack{
+		Level:  DEBUG,
+		Writer: newSyncWriter(os.Stdout),
+		Format: defaultFormatter(STATUS),
 	}
 }
 
-func WithWriter(w io.Writer) Option {
-	return func(c *Config) {
-		c.out = w
+func (j *jack) log(lvl Level, v any) {
+	if !j.Is(lvl) {
+		return
+	}
+
+	io.Copy(j, j.Format(newLog(lvl, v)))
+}
+
+func (j *jack) Debug(v any) {
+	j.log(DEBUG, v)
+}
+
+func (j *jack) Error(v any) {
+	j.log(ERROR, v)
+}
+
+func (j *jack) Alert(v any) {
+	j.log(ALERT, v)
+}
+
+type option func(*jack)
+
+func WithLevel(lvl Level) option {
+	return func(j *jack) {
+		j.Level = lvl
 	}
 }
 
-type fprintJack struct {
-	Picker
+func WithWriter(w io.Writer) option {
+	return func(j *jack) {
+		j.Writer = w
+	}
 }
 
-func (j *fprintJack) Debug(v any) {
-	j.Pick(FPRINT(DEBUG, v))
-}
-func (j *fprintJack) Alert(v any) {
-	j.Pick(FPRINT(ALERT, v))
-}
-func (j *fprintJack) Error(v any) {
-	j.Pick(FPRINT(ERROR, v))
-}
-
-type jsonJack struct {
-	Picker
-}
-
-func (j *jsonJack) Debug(v any) {
-	j.Pick(JSON(DEBUG, v))
-}
-func (j *jsonJack) Alert(v any) {
-	j.Pick(JSON(ALERT, v))
-}
-func (j *jsonJack) Error(v any) {
-	j.Pick(JSON(ERROR, v))
+func WithFormatter(f Formatter) option {
+	return func(j *jack) {
+		j.Format = f
+	}
 }
