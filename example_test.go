@@ -3,6 +3,8 @@ package timber_test
 import (
 	"bytes"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 
 	"github.com/hyqe/timber"
 )
@@ -82,4 +84,30 @@ func ExampleCustomPrinter() {
 	fmt.Println(output.String())
 	// Output:
 	// my custom log: timber!
+}
+
+func ExampleHttpLog() {
+	r := httptest.NewRequest(http.MethodGet, "/", nil)
+	l := timber.NewHttpLog(r, http.StatusOK)
+
+	timber.Debug(l)
+	// Output:
+	// DEBUG: GET / 200
+}
+
+func ExampleMiddleware() {
+	middleware := timber.NewMiddleware(timber.NewJack())
+
+	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	handler := middleware(next)
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest(http.MethodGet, "/", nil)
+
+	handler.ServeHTTP(w, r)
+	// Output:
+	// DEBUG: GET / 200
 }

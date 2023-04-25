@@ -8,7 +8,7 @@ import (
 	"github.com/hyqe/timber"
 )
 
-func TestNewMiddlewareJack_StatusInternalServerError(t *testing.T) {
+func TestNewMiddleware_StatusInternalServerError(t *testing.T) {
 
 	emit := func(l *timber.Log) {
 		if l.Level != timber.ERROR {
@@ -17,7 +17,7 @@ func TestNewMiddlewareJack_StatusInternalServerError(t *testing.T) {
 	}
 
 	jack := timber.NewJack(timber.SetEmitters(emit))
-	middleware := timber.NewMiddlewareJack(jack)
+	middleware := timber.NewMiddleware(jack)
 
 	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -31,7 +31,7 @@ func TestNewMiddlewareJack_StatusInternalServerError(t *testing.T) {
 	handler.ServeHTTP(w, r)
 }
 
-func TestNewMiddlewareJack_StatusBadRequest(t *testing.T) {
+func TestNewMiddleware_StatusBadRequest(t *testing.T) {
 
 	emit := func(l *timber.Log) {
 		if l.Level != timber.DEBUG {
@@ -40,7 +40,7 @@ func TestNewMiddlewareJack_StatusBadRequest(t *testing.T) {
 	}
 
 	jack := timber.NewJack(timber.SetEmitters(emit))
-	middleware := timber.NewMiddlewareJack(jack)
+	middleware := timber.NewMiddleware(jack)
 
 	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)

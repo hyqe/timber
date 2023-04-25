@@ -1,18 +1,24 @@
 package timber
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+)
 
-// NewMiddlewareJack creates a logger which maps http status to log level.
-func NewMiddlewareJack(j Jack) func(next http.Handler) http.Handler {
+// NewMiddleware creates a logger which maps http status to log level.
+func NewMiddleware(j Jack) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			rw := newResponseWriter(w)
 			next.ServeHTTP(rw, r)
+
+			l := NewHttpLog(r, rw.status)
+
 			switch switchHttpStatus(rw.status) {
 			case ERROR:
-				j.Error(r)
+				j.Error(l)
 			case DEBUG:
-				j.Debug(r)
+				j.Debug(l)
 			}
 		})
 	}
@@ -41,4 +47,22 @@ func newResponseWriter(w http.ResponseWriter) *responseWriter {
 func (r *responseWriter) WriteHeader(statusCode int) {
 	r.status = statusCode
 	r.ResponseWriter.WriteHeader(statusCode)
+}
+
+func NewHttpLog(r *http.Request, status int) *HttpLog {
+	return &HttpLog{
+		Method: r.Method,
+		Path:   r.URL.Path,
+		Status: status,
+	}
+}
+
+type HttpLog struct {
+	Method string `json:"method"`
+	Path   string `json:"path"`
+	Status int    `json:"status"`
+}
+
+func (r *HttpLog) String() string {
+	return fmt.Sprintf("%v %v %v", r.Method, r.Path, r.Status)
 }
