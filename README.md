@@ -12,7 +12,7 @@ timber.Debug("Timber!!!")
 // DEBUG: Timber!!!
 ```
 
-Creating a logging instance, with a custom writer.
+Creating a custom logging instance.
 
 ```Go
 var output bytes.Buffer
@@ -29,16 +29,15 @@ formatter := func(l timber.Log) string {
 	}
 }
 
-
 // create a custom timber.Jack 🪓
 jack := timber.NewJack(
-    // set log levels
+	// set log levels
 	timber.WithLevel(timber.DEBUG),
 
-    // set custom formatter
+	// set custom formatter
 	timber.WithFormatter(formatter),
 
-    // set custom output
+	// set custom output
 	timber.WithWriter(&output),
 )
 

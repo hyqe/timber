@@ -16,6 +16,7 @@ func Example() {
 func ExampleJack() {
 	var output bytes.Buffer
 
+	// full control with custom formatters
 	formatter := func(l timber.Log) string {
 		switch l.Level {
 		case timber.DEBUG:
@@ -27,9 +28,15 @@ func ExampleJack() {
 		}
 	}
 
+	// create a custom timber.Jack 🪓
 	jack := timber.NewJack(
+		// set log levels
 		timber.WithLevel(timber.DEBUG),
+
+		// set custom formatter
 		timber.WithFormatter(formatter),
+
+		// set custom output
 		timber.WithWriter(&output),
 	)
 
