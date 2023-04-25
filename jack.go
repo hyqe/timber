@@ -1,7 +1,6 @@
 package timber
 
 import (
-	"fmt"
 	"io"
 	"os"
 	"sync"
@@ -20,16 +19,16 @@ func NewJack(opts ...option) Jack {
 
 type jack struct {
 	sync.Mutex
-	Out io.Writer
+	Emitters []Emitter
 	Level
-	Format Formatter
 }
 
 func newJack() *jack {
 	return &jack{
-		Level:  DEBUG,
-		Out:    os.Stdout,
-		Format: TEMPLATE(STATUS),
+		Level: DEBUG,
+		Emitters: []Emitter{
+			FPRINTLN(os.Stdout, LEVEL),
+		},
 	}
 }
 
@@ -46,9 +45,10 @@ func (j *jack) log(lvl Level, v any) {
 	if !j.Is(lvl) {
 		return
 	}
+	l := newLog(lvl, v)
 	j.Lock()
 	defer j.Unlock()
-	fmt.Fprintln(j.Out, j.Format(newLog(lvl, v)))
+	emit(l, j.Emitters...)
 }
 
 func (j *jack) Debug(v any) {
@@ -65,20 +65,33 @@ func (j *jack) Alert(v any) {
 
 type option func(*jack)
 
+// WithLevel sets the log level, which can change which logs gets emitted.
 func WithLevel(lvl Level) option {
 	return func(j *jack) {
 		j.Level = lvl
 	}
 }
 
-func WithWriter(w io.Writer) option {
+// AddPrinter adds a printer to the Emitters.
+func AddPrinter(w io.Writer, f Formatter) option {
+	return AddEmitters(FPRINTLN(w, f))
+}
+
+// SetPrinter sets/overwrites the Emitters with a printer.
+func SetPrinter(w io.Writer, f Formatter) option {
+	return SetEmitters(FPRINTLN(w, f))
+}
+
+// AddEmitters adds logging emitters.
+func AddEmitters(fns ...Emitter) option {
 	return func(j *jack) {
-		j.Out = w
+		j.Emitters = append(j.Emitters, fns...)
 	}
 }
 
-func WithFormatter(f Formatter) option {
+// SetEmitters sets/overwrites the logging emitters.
+func SetEmitters(fns ...Emitter) option {
 	return func(j *jack) {
-		j.Format = f
+		j.Emitters = fns
 	}
 }

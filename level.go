@@ -28,7 +28,7 @@ const (
 	// within your application.
 	//
 	// examples:
-	// - 400, 500 http status responses
+	// - 500 http status responses
 	// - file read misses
 	// - unexpected state
 	ERROR

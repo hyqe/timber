@@ -12,8 +12,8 @@ type Log struct {
 	Message   any       `json:"message"`
 }
 
-func newLog(lvl Level, v any) Log {
-	return Log{
+func newLog(lvl Level, v any) *Log {
+	return &Log{
 		CreatedAt: time.Now().UTC(),
 		Level:     lvl,
 		Message:   v,

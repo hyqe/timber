@@ -17,7 +17,7 @@ func ExampleJack() {
 	var output bytes.Buffer
 
 	// full control with custom formatters
-	formatter := func(l timber.Log) string {
+	formatter := func(l *timber.Log) string {
 		switch l.Level {
 		case timber.DEBUG:
 			return fmt.Sprintf("🚧: %v", l.Message)
@@ -33,11 +33,8 @@ func ExampleJack() {
 		// set log levels
 		timber.WithLevel(timber.DEBUG),
 
-		// set custom formatter
-		timber.WithFormatter(formatter),
-
-		// set custom output
-		timber.WithWriter(&output),
+		// set custom printer
+		timber.SetPrinter(&output, formatter),
 	)
 
 	jack.Debug("this will debug")
@@ -57,7 +54,7 @@ func ExampleWithLevel() {
 	// set the logging level to ALERT.
 	jack := timber.NewJack(
 		timber.WithLevel(timber.ALERT),
-		timber.WithWriter(&output),
+		timber.SetPrinter(&output, timber.LEVEL),
 	)
 
 	jack.Debug("this will be ignored")
@@ -69,16 +66,15 @@ func ExampleWithLevel() {
 	// ALERT: this will alert
 }
 
-func ExampleWithFormatter() {
+func ExampleCustomPrinter() {
 	var output bytes.Buffer
 
-	formatter := func(l timber.Log) string {
+	formatter := func(l *timber.Log) string {
 		return fmt.Sprintf("my custom log: %v", l.Message)
 	}
 
 	jack := timber.NewJack(
-		timber.WithFormatter(formatter),
-		timber.WithWriter(&output),
+		timber.SetPrinter(&output, formatter),
 	)
 
 	jack.Debug("timber!")

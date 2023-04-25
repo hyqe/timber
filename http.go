@@ -2,8 +2,8 @@ package timber
 
 import "net/http"
 
-// NewHttpStatusLogger creates a logger which maps http status to log level.
-func NewHttpStatusLogger(j Jack) func(next http.Handler) http.Handler {
+// NewMiddlewareJack creates a logger which maps http status to log level.
+func NewMiddlewareJack(j Jack) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			rw := newResponseWriter(w)
