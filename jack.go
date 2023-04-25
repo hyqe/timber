@@ -1,8 +1,10 @@
 package timber
 
 import (
+	"fmt"
 	"io"
 	"os"
+	"sync"
 )
 
 type Jack interface {
@@ -21,6 +23,7 @@ func NewJack(opts ...option) Jack {
 }
 
 type jack struct {
+	sync.Mutex
 	io.Writer
 	Level
 	Format Formatter
@@ -29,8 +32,8 @@ type jack struct {
 func defaultJack() *jack {
 	return &jack{
 		Level:  DEBUG,
-		Writer: newSyncWriter(os.Stdout),
-		Format: defaultFormatter(STATUS),
+		Writer: os.Stdout,
+		Format: TEMPLATE(STATUS),
 	}
 }
 
@@ -38,8 +41,10 @@ func (j *jack) log(lvl Level, v any) {
 	if !j.Is(lvl) {
 		return
 	}
-
+	j.Lock()
+	defer j.Unlock()
 	io.Copy(j, j.Format(newLog(lvl, v)))
+	fmt.Fprint(j, "\n")
 }
 
 func (j *jack) Debug(v any) {
