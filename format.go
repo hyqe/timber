@@ -10,8 +10,8 @@ import (
 type Formatter func(l Log) io.Reader
 
 var (
-	STATUS    = template.Must(template.New("STATUS").Parse("{{.Level}}: {{.Data}}\n"))
-	TIMESTAMP = template.Must(template.New("TIMESTAMP").Parse("{{.CreatedAt}} {{.Level}}: {{.Data}}\n"))
+	STATUS    = template.Must(template.New("STATUS").Parse("{{.Level}}: {{.Message}}"))
+	TIMESTAMP = template.Must(template.New("TIMESTAMP").Parse("{{.CreatedAt}} {{.Level}}: {{.Message}}"))
 )
 
 // TEMPLATE formatter for logs
