@@ -2,13 +2,13 @@
  
 A flexible logging package.
 
-
+```bash
+go get github.com/hyqe/timber
+```
 
 Using the default logger.
 
 ```Go
-import "github.com/hyqe/timber"
-
 timber.Debug("Timber!!!")
 // Output:
 // DEBUG: Timber!!!
@@ -17,13 +17,6 @@ timber.Debug("Timber!!!")
 Creating a custom logging instance.
 
 ```Go
-import (
-	"bytes"
-	"fmt"
-
-	"github.com/hyqe/timber"
-)
-
 var output bytes.Buffer
 
 // full control with custom formatters
