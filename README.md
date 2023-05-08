@@ -17,10 +17,7 @@ timber.Debug("Timber!!!")
 Creating a custom logging instance.
 
 ```Go
-var output bytes.Buffer
-
-// full control with custom formatters
-formatter := func(l *timber.Log) string {
+formatter := func(l timber.Log) string {
 	switch l.Level {
 	case timber.DEBUG:
 		return fmt.Sprintf("🚧: %v", l.Message)
@@ -32,19 +29,16 @@ formatter := func(l *timber.Log) string {
 }
 
 // create a custom timber.Jack 🪓
-jack := timber.NewJack(
+timber.Default = timber.NewJack(
 	// set log levels
 	timber.WithLevel(timber.DEBUG),
-
-	// set custom printer
-	timber.SetPrinter(&output, formatter),
+	// set custom Emitters and Custom Formatter
+	timber.WithEmitters(timber.Console(formatter)),
 )
 
-jack.Debug("this will debug")
-jack.Error("this will error")
-jack.Alert("this will alert")
-
-fmt.Println(output.String())
+timber.Debug("this will debug")
+timber.Error("this will error")
+timber.Alert("this will alert")
 // Output:
 // 🚧: this will debug
 // 💩: this will error
