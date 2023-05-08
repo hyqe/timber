@@ -33,13 +33,15 @@ func (j *Jack) Sync(do func(*Jack)) {
 
 // Apply options to Jack.
 func (j *Jack) Apply(opts ...Option) *Jack {
-	for _, opt := range opts {
-		opt(j)
-	}
+	j.Sync(func(j *Jack) {
+		for _, opt := range opts {
+			opt(j)
+		}
+	})
 	return j
 }
 
-// Emit contains all the logic for admiting a log to all the emitters.
+// Emit contains all the logic for admitting a log to all the emitters.
 func (j *Jack) Emit(l Log) {
 	j.Sync(func(j *Jack) {
 		if len(j.Emitters) == 0 {
