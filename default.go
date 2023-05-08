@@ -1,39 +1,42 @@
 package timber
 
-var defaultJack *jack
+// Default enables using jack in the Global scope, as is
+// often desired for logging packages.
+var Default = NewDefaultJack()
 
-func init() {
-	// Go Examples is breaking when using the init() func.
-	// apparently "go test ./..." replaces the os.Stdout
-	// file after init is run, which causes it to not capture
-	// the output correctly.
-	// defaultJack = newJack()
+func NewDefaultJack() *Jack {
+	return NewJack(
+		WithLevel(DEBUG),
+		WithEmitters(Console(AsText())),
+	)
 }
 
-func Apply(opts ...option) {
-	if defaultJack == nil {
-		defaultJack = newJack()
-	}
-	defaultJack.apply(opts...)
+// Alert creates new log with its level set to ALERT.
+func Alert(v any) {
+	Default.Alert(v)
 }
 
+// Alertf creates new log with its level set to ALERT.
+func Alertf(format string, v any) {
+	Default.Alertf(format, v)
+}
+
+// Error creates new log with its level set to ERROR.
+func Error(v any) {
+	Default.Error(v)
+}
+
+// Errorf creates new log with its level set to ERROR.
+func Errorf(format string, v any) {
+	Default.Errorf(format, v)
+}
+
+// Debug creates new log with its level set to DEBUG.
 func Debug(v any) {
-	if defaultJack == nil {
-		defaultJack = newJack()
-	}
-	defaultJack.Debug(v)
+	Default.Debug(v)
 }
 
-func Error(v any, opts ...option) {
-	if defaultJack == nil {
-		defaultJack = newJack()
-	}
-	defaultJack.Error(v)
-}
-
-func Alert(v any, opts ...option) {
-	if defaultJack == nil {
-		defaultJack = newJack()
-	}
-	defaultJack.Alert(v)
+// Debugf creates new log with its level set to DEBUG.
+func Debugf(format string, v any) {
+	Default.Debugf(format, v)
 }

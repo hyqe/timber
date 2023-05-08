@@ -71,6 +71,6 @@ func (l Level) String() string {
 //
 //	DEBUG.Is(ALERT) == true
 //	ALERT.Is(ERROR) == false
-func (l Level) Is(lvl Level) bool {
+func (l Level) GTE(lvl Level) bool {
 	return l >= lvl
 }

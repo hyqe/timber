@@ -6,7 +6,7 @@ import (
 )
 
 // NewMiddleware creates a logger which maps http status to log level.
-func NewMiddleware(j Jack) func(next http.Handler) http.Handler {
+func NewMiddleware() func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			rw := newResponseWriter(w)
@@ -17,9 +17,9 @@ func NewMiddleware(j Jack) func(next http.Handler) http.Handler {
 
 			switch switchHttpStatus(rw.status) {
 			case ERROR:
-				j.Error(l)
+				Error(l)
 			case DEBUG:
-				j.Debug(l)
+				Debug(l)
 			}
 		})
 	}
@@ -32,23 +32,6 @@ func switchHttpStatus(status int) Level {
 	default:
 		return DEBUG
 	}
-}
-
-type responseWriter struct {
-	http.ResponseWriter
-	status int
-}
-
-func newResponseWriter(w http.ResponseWriter) *responseWriter {
-	return &responseWriter{
-		status:         http.StatusOK,
-		ResponseWriter: w,
-	}
-}
-
-func (r *responseWriter) WriteHeader(statusCode int) {
-	r.status = statusCode
-	r.ResponseWriter.WriteHeader(statusCode)
 }
 
 func NewHttpLog(r *http.Request, status int) *HttpLog {
@@ -67,4 +50,21 @@ type HttpLog struct {
 
 func (r *HttpLog) String() string {
 	return fmt.Sprintf("%v %v %v", r.Method, r.Path, r.Status)
+}
+
+type responseWriter struct {
+	http.ResponseWriter
+	status int
+}
+
+func newResponseWriter(w http.ResponseWriter) *responseWriter {
+	return &responseWriter{
+		status:         http.StatusOK,
+		ResponseWriter: w,
+	}
+}
+
+func (r *responseWriter) WriteHeader(statusCode int) {
+	r.status = statusCode
+	r.ResponseWriter.WriteHeader(statusCode)
 }
