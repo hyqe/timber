@@ -141,9 +141,9 @@ type Log struct {
 type Emitter = func(Log)
 
 // Console emits logs to the console.
-func Console(fmtr Formatter) Emitter {
+func Console(format Formatter) Emitter {
 	return func(l Log) {
-		io.Copy(os.Stdout, bytes.NewReader([]byte(fmtr(l)+"\n")))
+		io.Copy(os.Stdout, bytes.NewReader([]byte(format(l)+"\n")))
 	}
 }
 
@@ -166,8 +166,4 @@ func AsJson() Formatter {
 		}
 		return string(b)
 	}
-}
-
-func getStdOut() *os.File {
-	return os.Stdout
 }
